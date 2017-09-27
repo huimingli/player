@@ -1,45 +1,20 @@
 #include "XPlay.h"
 #include <QtWidgets/QApplication>
 #include"XFFmpeg.h"
-
-
-//static double r2d(AVRational r) {
-//	return r.num == 0 || r.den == 0 ?
-//		0. : (double)r.num / (double)r.den;
-//}
+#include<qaudiooutput.h>
 int main(int argc, char *argv[])
 {
-	/*if (XFFmpeg::Get()->Open("video.mp4")) {
-		printf("open success\n");
-	}
-	else {
-		printf("open failed\n",
-			XFFmpeg::Get()->GetError().c_str());
-		return -1;
-	}
-	char *rgb = new char[800 * 600 * 4];
-	while (true) {
-        AVPacket pkt = XFFmpeg::Get()->Read();
-	    if (pkt.size == 0) {
-		    break;
-	    }
-	    printf("pts=%11d\n", pkt.pts);
-		printf("ptsend\n");
-		if (pkt.stream_index != XFFmpeg::Get()->videoStream) {
-			av_packet_unref(&pkt);
-			continue;
-		}
-		AVFrame *yuv = XFFmpeg::Get()->Decode(&pkt);
-		if (yuv) {
-			printf("[D]");
-			XFFmpeg::Get()->ToRGB(yuv, rgb, 800, 600);
-		}
-		
-		av_packet_unref(&pkt);
-	}
-	delete rgb;
-	XFFmpeg::Get()->XFFmpeg::Close();
-	*/
+	QAudioOutput *out;
+	QAudioFormat fmt;
+	fmt.setSampleRate(48000);///一秒采集四万八千个音频
+	fmt.setSampleSize(16);//16位，一秒采集65535种声音
+	fmt.setChannelCount(2);
+	fmt.setCodec("audio/pcm");
+	fmt.setByteOrder(QAudioFormat::LittleEndian);
+	fmt.setSampleType(QAudioFormat::UnSignedInt);
+	out = new QAudioOutput(fmt);
+	QIODevice *ad = out->start();
+	/*ad->write*/
 	QApplication a(argc, argv);
 	XPlay w;
 	w.show();

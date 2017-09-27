@@ -4,6 +4,7 @@
 #pragma comment(lib,"avutil.lib")
 #pragma comment(lib,"avcodec.lib")
 #pragma comment(lib,"swscale.lib")
+#pragma comment(lib,"swresample.lib")
 static double r2d(AVRational r) {
 	return r.num == 0 || r.den == 0 ?
 		0. : (double)r.num / (double)r.den;
@@ -46,6 +47,30 @@ int XFFmpeg::Open(const char*path) {
 			}
 			printf("open success\n");
 		}
+		else if (enc->codec_type == AVMEDIA_TYPE_AUDIO) {
+			audioStream = i;
+			AVCodec *codec = avcodec_find_decoder(enc->codec_id);
+			if (avcodec_open2(enc, codec, NULL) < 0) {
+				mutex.unlock();
+				return false;
+			}
+			this->sampleRate = enc->sample_rate;
+			this->channel = enc->channels;
+			switch (enc->sample_fmt)
+			{
+			case AV_SAMPLE_FMT_S16:
+				this->sampleSize = 16;
+				break;
+			case AV_SAMPLE_FMT_S32:
+				this->sampleSize = 32;
+				break;
+			default:
+				break;
+			}
+			printf("audio sample:%d  %d  %d\n",
+				this->sampleRate, this->sampleSize,
+				this->channel);
+		}
 	}
 	mutex.unlock();
 	return totalMs;
@@ -62,6 +87,9 @@ void XFFmpeg::Close() {
 	if (cCtx) {
 		sws_freeContext(cCtx);
 		cCtx = NULL;
+	}
+	if (aCtx) {
+		swr_free(&aCtx);
 	}
 	mutex.unlock();
 }
@@ -96,7 +124,7 @@ XFFmpeg::XFFmpeg()
 	av_register_all();//构造函数只执行一次，单例
 }
 
-AVFrame *XFFmpeg::Decode(const AVPacket *pkt) {
+int XFFmpeg::Decode(const AVPacket *pkt) {
 	mutex.lock();
 	if (!ic)
 	{
@@ -107,6 +135,14 @@ AVFrame *XFFmpeg::Decode(const AVPacket *pkt) {
 	{
 		yuv = av_frame_alloc();
 	}
+	if (pcm == NULL) {
+		pcm = av_frame_alloc();
+	}
+
+	AVFrame *frame = yuv;
+	if (pkt->stream_index == audioStream) {
+		frame = pcm;
+	}
 	int re = avcodec_send_packet(
 		ic->streams[pkt->stream_index]->codec, pkt);
 
@@ -115,15 +151,18 @@ AVFrame *XFFmpeg::Decode(const AVPacket *pkt) {
 		return NULL;
 	}
 	re = avcodec_receive_frame(
-		ic->streams[pkt->stream_index]->codec, yuv);
+		ic->streams[pkt->stream_index]->codec, frame);
 	if (re != 0) {
 		mutex.unlock();
 		return NULL;
 	}
 	mutex.unlock();
-	pts = yuv->pts * r2d(ic->
+	int p  = frame->pts * r2d(ic->
 		streams[pkt->stream_index]->time_base) * 1000;
-	return yuv;
+	if (pkt->stream_index == audioStream) {
+		this->pts = p;
+	}
+	return p;
 }
 
 bool XFFmpeg::ToRGB(char *out, int outWidth, int outHeight) {
@@ -163,6 +202,46 @@ bool XFFmpeg::ToRGB(char *out, int outWidth, int outHeight) {
 		
 	mutex.unlock();
 	return true;
+}
+
+int XFFmpeg::GetPts(const AVPacket *pkt) {
+	mutex.lock();
+	if (!ic) {
+		mutex.unlock();
+		return -1;
+	}
+	int pts = (pkt->pts * r2d(ic->
+		streams[pkt->stream_index]->time_base)) * 1000;
+	mutex.unlock();
+	return pts;
+}
+
+int XFFmpeg::ToPCM(char *out) {
+	mutex.lock();
+	if (!ic || !pcm || !out) {
+		mutex.unlock();
+		return 0;
+	}
+	AVCodecContext *ctx = ic->streams[audioStream]->codec;
+	if (aCtx == NULL) {
+		aCtx = swr_alloc();
+		swr_alloc_set_opts(aCtx, ctx->channel_layout, 
+			AV_SAMPLE_FMT_S16,ctx->sample_rate,ctx->channels,
+			ctx->sample_fmt,ctx->sample_rate,
+			0,0);
+		swr_init(aCtx);
+	}
+	uint8_t *data[1];
+	data[0] = (uint8_t*)out;
+	int len = swr_convert(aCtx, data, 10000, 
+		(const uint8_t **)pcm->data, pcm->nb_samples);
+	if (len <= 0) {
+		return 0;
+	}
+	int outsize = av_samples_get_buffer_size(NULL, ctx->channels,
+		pcm->nb_samples, AV_SAMPLE_FMT_S16, 0);
+	mutex.unlock();
+	return outsize;
 }
 
 bool XFFmpeg::Seek(float pos) {

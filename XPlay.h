@@ -10,8 +10,10 @@ class XPlay : public QWidget
 public:
 	XPlay(QWidget *parent = Q_NULLPTR);
 	~XPlay();
+	void resizeEvent(QResizeEvent *e);
 	void timerEvent(QTimerEvent *e);
-	public slots://ÐÅºÅ²Û
+	void openFile(QString name);
+public slots://ÐÅºÅ²Û
 	void open();
 	void play();
 	void sliderPress();

@@ -16,9 +16,9 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QSlider>
 #include <QtWidgets/QWidget>
 #include "videowidget.h"
+#include "xslider.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -31,7 +31,7 @@ public:
     QLabel *totalTime;
     QLabel *playTime;
     QLabel *sp;
-    QSlider *playLine;
+    XSlider *playLine;
 
     void setupUi(QWidget *XPlayClass)
     {
@@ -67,9 +67,9 @@ public:
 "font: 14pt \"\351\273\221\344\275\223\";"));
         sp = new QLabel(XPlayClass);
         sp->setObjectName(QStringLiteral("sp"));
-        sp->setGeometry(QRect(150, 530, 16, 16));
+        sp->setGeometry(QRect(150, 530, 16, 31));
         sp->setStyleSheet(QStringLiteral("color: rgb(13, 13, 13);"));
-        playLine = new QSlider(XPlayClass);
+        playLine = new XSlider(XPlayClass);
         playLine->setObjectName(QStringLiteral("playLine"));
         playLine->setGeometry(QRect(0, 470, 800, 22));
         playLine->setMaximum(999);
