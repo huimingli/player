@@ -3,7 +3,10 @@
 bool isExit = false;
 void XVideoThread::run() {
 	while (!isExit) {
-
+		if (!XFFmpeg::Get()->isPlay) {
+			msleep(10);
+			continue;
+		}
 		AVPacket pkt = XFFmpeg::Get()->Read();
 		if (pkt.size <= 0) {
 			msleep(10);//ÊÍ·Åcpu×ÊÔ´

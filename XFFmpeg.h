@@ -23,9 +23,12 @@ public:
 	AVFrame *Decode(const AVPacket *pkt);
 	std::string GetError();
 	bool ToRGB(char *out, int outWidth, int outHeight);
+	bool Seek(float pos);
 	virtual ~XFFmpeg();
+	bool isPlay = false;
 	int totalMs = 0;
 	int fps = 0;
+	int pts = 0;//当前进度
 	int videoStream = 0;
 protected:
 	AVFormatContext *ic = NULL;

@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_XPlay_t {
-    QByteArrayData data[3];
-    char stringdata0[12];
+    QByteArrayData data[6];
+    char stringdata0[43];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -33,10 +33,13 @@ static const qt_meta_stringdata_XPlay_t qt_meta_stringdata_XPlay = {
     {
 QT_MOC_LITERAL(0, 0, 5), // "XPlay"
 QT_MOC_LITERAL(1, 6, 4), // "open"
-QT_MOC_LITERAL(2, 11, 0) // ""
+QT_MOC_LITERAL(2, 11, 0), // ""
+QT_MOC_LITERAL(3, 12, 4), // "play"
+QT_MOC_LITERAL(4, 17, 11), // "sliderPress"
+QT_MOC_LITERAL(5, 29, 13) // "sliderRelease"
 
     },
-    "XPlay\0open\0"
+    "XPlay\0open\0\0play\0sliderPress\0sliderRelease"
 };
 #undef QT_MOC_LITERAL
 
@@ -46,7 +49,7 @@ static const uint qt_meta_data_XPlay[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       1,   14, // methods
+       4,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -54,9 +57,15 @@ static const uint qt_meta_data_XPlay[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   19,    2, 0x0a /* Public */,
+       1,    0,   34,    2, 0x0a /* Public */,
+       3,    0,   35,    2, 0x0a /* Public */,
+       4,    0,   36,    2, 0x0a /* Public */,
+       5,    0,   37,    2, 0x0a /* Public */,
 
  // slots: parameters
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
     QMetaType::Void,
 
        0        // eod
@@ -69,6 +78,9 @@ void XPlay::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void 
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->open(); break;
+        case 1: _t->play(); break;
+        case 2: _t->sliderPress(); break;
+        case 3: _t->sliderRelease(); break;
         default: ;
         }
     }
@@ -100,13 +112,13 @@ int XPlay::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 1)
+        if (_id < 4)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
+        _id -= 4;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 1)
+        if (_id < 4)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 1;
+        _id -= 4;
     }
     return _id;
 }

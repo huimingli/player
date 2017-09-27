@@ -121,6 +121,8 @@ AVFrame *XFFmpeg::Decode(const AVPacket *pkt) {
 		return NULL;
 	}
 	mutex.unlock();
+	pts = yuv->pts * r2d(ic->
+		streams[pkt->stream_index]->time_base) * 1000;
 	return yuv;
 }
 
@@ -162,6 +164,27 @@ bool XFFmpeg::ToRGB(char *out, int outWidth, int outHeight) {
 	mutex.unlock();
 	return true;
 }
+
+bool XFFmpeg::Seek(float pos) {
+	mutex.lock();
+	if (!ic) {
+		mutex.unlock();
+		return false;
+	}
+	int64_t stamp = 0;//Ê±¼ä´Á
+	stamp = pos * ic->streams[videoStream]->duration;
+	int re = av_seek_frame(ic, videoStream, stamp,
+		AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_FRAME);
+	avcodec_flush_buffers(ic->streams[videoStream]->codec);//Çå³ý»º³åÖ¡
+	pts = stamp * r2d(ic->streams[videoStream]->time_base) * 1000;
+
+	mutex.unlock();
+	if (re >= 0) {
+		return true;
+	}
+	return false;
+}
+
 XFFmpeg::~XFFmpeg()
 {
 }

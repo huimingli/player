@@ -16,6 +16,7 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSlider>
 #include <QtWidgets/QWidget>
 #include "videowidget.h"
 
@@ -29,6 +30,8 @@ public:
     QPushButton *playButton;
     QLabel *totalTime;
     QLabel *playTime;
+    QLabel *sp;
+    QSlider *playLine;
 
     void setupUi(QWidget *XPlayClass)
     {
@@ -60,12 +63,23 @@ public:
         playTime = new QLabel(XPlayClass);
         playTime->setObjectName(QStringLiteral("playTime"));
         playTime->setGeometry(QRect(70, 520, 71, 31));
-        playTime->setStyleSheet(QString::fromUtf8(" \n"
-"color: rgb(13, 13, 13);\n"
+        playTime->setStyleSheet(QString::fromUtf8("color: rgb(13, 13, 13);\n"
 "font: 14pt \"\351\273\221\344\275\223\";"));
+        sp = new QLabel(XPlayClass);
+        sp->setObjectName(QStringLiteral("sp"));
+        sp->setGeometry(QRect(150, 530, 16, 16));
+        sp->setStyleSheet(QStringLiteral("color: rgb(13, 13, 13);"));
+        playLine = new QSlider(XPlayClass);
+        playLine->setObjectName(QStringLiteral("playLine"));
+        playLine->setGeometry(QRect(0, 470, 800, 22));
+        playLine->setMaximum(999);
+        playLine->setOrientation(Qt::Horizontal);
 
         retranslateUi(XPlayClass);
         QObject::connect(openButton, SIGNAL(clicked()), XPlayClass, SLOT(open()));
+        QObject::connect(playLine, SIGNAL(sliderPressed()), XPlayClass, SLOT(sliderPress()));
+        QObject::connect(playLine, SIGNAL(sliderReleased()), XPlayClass, SLOT(sliderRelease()));
+        QObject::connect(playButton, SIGNAL(clicked()), XPlayClass, SLOT(play()));
 
         QMetaObject::connectSlotsByName(XPlayClass);
     } // setupUi
@@ -75,8 +89,9 @@ public:
         XPlayClass->setWindowTitle(QApplication::translate("XPlayClass", "XPlay", Q_NULLPTR));
         openButton->setText(QString());
         playButton->setText(QString());
-        totalTime->setText(QApplication::translate("XPlayClass", "00:00", Q_NULLPTR));
-        playTime->setText(QApplication::translate("XPlayClass", "00:00", Q_NULLPTR));
+        totalTime->setText(QApplication::translate("XPlayClass", "000:00", Q_NULLPTR));
+        playTime->setText(QApplication::translate("XPlayClass", "000:00", Q_NULLPTR));
+        sp->setText(QApplication::translate("XPlayClass", "/", Q_NULLPTR));
     } // retranslateUi
 
 };
