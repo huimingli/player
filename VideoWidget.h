@@ -1,6 +1,7 @@
 #pragma once
 #include<QtWidgets\qwidget.h>
 #include<qopenglwidget.h>
+#include"XVideoThread.h"
 class VideoWidget:public QOpenGLWidget
 {
 public:
@@ -8,5 +9,7 @@ public:
 	void paintEvent(QPaintEvent *e);
 	void timerEvent(QTimerEvent *e);
 	virtual ~VideoWidget();
+private:
+	XVideoThread * videoThread = new XVideoThread;
 };
 

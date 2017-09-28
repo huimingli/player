@@ -8,7 +8,7 @@ static int apts = -1;
 bool isExit = false;
 void XVideoThread::run() {
 	char out[10000] = { 0 };
-	while (!isExit) {
+	while (!isInterruptionRequested()) {
 		if (!XFFmpeg::Get()->isPlay) {
 			msleep(10);
 			continue;
@@ -63,5 +63,7 @@ XVideoThread::XVideoThread()
 
 XVideoThread::~XVideoThread()
 {
-	
+	requestInterruption();
+	quit();
+	wait();
 }
